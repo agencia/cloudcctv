@@ -34,11 +34,12 @@ class Uploader(threading.Thread):
 	        self.upload(load)
 	        self.queue.task_done()
 	        print('task done')
+	    else:
+		print('empty')
 
     def upload(self,load):
 	print('uploading')
 	call(load)
-	print('upload finished')
 	#self.queue.task_done()
 
 class MyMotionDetector(object):
@@ -114,10 +115,9 @@ with picamera.PiCamera() as camera:
 	    file_name = 'video{0}.'.format(current_recording_time)
 	    camera.split_recording('{0}{1}'.format(file_name,'h264'), splitter_port=2)
 	    queue.put(['MP4Box','-add','{0}{1}'.format(last_name,'h264'),'{0}{1}'.format(last_name,'mp4')])
+	    queue.put(['rm', '{0}{1}'.format(last_name,'h264')])
 	    queue.put(['aws','s3','mv', '{0}{1}'.format(last_name,'mp4'),'s3://cloudcctv-media'])
-	    #call(['MP4Box','-add','{0}{1}'.format(last_name,'h264'),'{0}{1}'.format(last_name,'mp4')])
-	    #call(['aws','s3','mv', '{0}{1}'.format(last_name,'mp4'),'s3://cloudcctv'])
-	    ##call(['rm','-f','video*'])
+	    
 	    last_name = file_name
             #write_video(stream)
     finally:
